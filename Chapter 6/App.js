@@ -1,20 +1,25 @@
 var http = require('http'),
-    path = require('path'),
+    url =  require('url'),
     fs   = require('fs'),
+    mime = require('mime');
     base = '/Users/massimofazari/Node/Chapter 6';		//ADD FULL PATH
 
 http.createServer(function (req, res) {
 
-	pathname = base + req.url;
-	console.log(pathname);
+   pathname = base + req.url;
+   console.log(pathname);
 
-   fs.exists(pathname, function(exists) {
-      if (!exists) {
+
+   fs.stat(pathname, function(err, stats) {
+      if (err) {
         res.writeHead(404);
         res.write('Bad request 404\n');
         res.end();
-      } else {
-         res.setHeader('Content-Type', 'text/html');
+      } else if (stats.isFile()) {
+         // content type
+         var type = mime.getType(pathname);
+         console.log(type);
+         res.setHeader('Content-Type', type);
 
          // 200 status - found, no errors
          res.statusCode = 200;
@@ -22,13 +27,17 @@ http.createServer(function (req, res) {
          // create and pipe readable stream
          var file = fs.createReadStream(pathname);
          file.on("open", function() {
+
             file.pipe(res);
          });
          file.on("error", function(err) {
            console.log(err);
          });
+       } else {
+        res.writeHead(403);
+        res.write('Directory access is forbidden');
+        res.end();
        }
     });
 }).listen(8124);
-
 console.log('Server running at 8124/');

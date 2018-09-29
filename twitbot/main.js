@@ -1,48 +1,84 @@
-const twit = require('twit');
-const config = {
-    consumer_key:         'N7KMv4kAyyUGx5kqzfLqAyJ5W',
-    consumer_secret:      'Bt99VhJrInU5KDuQussAw8738Ztl7Ds0wfsR28q5MnsBZKcESV',
-    access_token:         '1045652205448179713-e9aZNvNCWBdSh3ZTmRiJ7He9Hm3LH9',
-    access_token_secret:  'Mm5ytWr1srVRNkrRL5fu1tzcuiuWMyok6rqqiQwxP7emd',
-}
+/*!
+ * Bot.js : A Twitter bot that can retweet in response to the tweets matching particluar keyword
+ * Version 1.0.0
+ * Created by Debashis Barman (http://www.debashisbarman.in)
+ * License : http://creativecommons.org/licenses/by-sa/3.0
+ */
 
-const Twitter = new twit(config);
+/* Configure the Twitter API */
+    var TWITTER_CONSUMER_KEY = 'N7KMv4kAyyUGx5kqzfLqAyJ5W';
+    var TWITTER_CONSUMER_SECRET = 'Bt99VhJrInU5KDuQussAw8738Ztl7Ds0wfsR28q5MnsBZKcESV';
+    var TWITTER_ACCESS_TOKEN = '1045652205448179713-e9aZNvNCWBdSh3ZTmRiJ7He9Hm3LH9';
+    var TWITTER_ACCESS_TOKEN_SECRET = 'Mm5ytWr1srVRNkrRL5fu1tzcuiuWMyok6rqqiQwxP7emd';
 
-let retweet = function() {
-    let params = {
-        q: '#developer, #jobs',
-        result_type: 'mixed',
-        lang: 'en'
-    }
-    Twitter.get('search/tweets', params, function(err, data) {
-        console.log(data);
-        // if there is no error
-        if (!err) {
-           // loop through the first 4 returned tweets
-          for (let i = 0; i < 4; i++) {
-            // iterate through those first four defining a rtId that is equal to the value of each of those tweets' ids
-          let rtId = data.statuses[i].id_str;
-            // the post action
-          Twitter.post('statuses/retweet/:id', {
-            // setting the id equal to the rtId variable
-            id: rtId
-            // log response and log error
-          }, function(err, response) {
-            if (response) {
-              console.log('Successfully retweeted');
-            }
-            if (err) {
-              console.log(err);
-            }
-          });
+
+
+
+/* Set Twitter search phrase */
+var TWITTER_SEARCH_PHRASE = '#technology OR #design';
+
+var Twit = require('twit');
+
+var Bot = new Twit({
+    consumer_key: TWITTER_CONSUMER_KEY,
+    consumer_secret: TWITTER_CONSUMER_SECRET,
+    access_token: TWITTER_ACCESS_TOKEN, 
+    access_token_secret: TWITTER_ACCESS_TOKEN_SECRET
+});
+
+console.log('The bot is running...');
+
+/* BotInit() : To initiate the bot */
+function BotInit() {
+    Bot.post('statuses/retweet/:id', { id: '669520341815836672' }, BotInitiated);
+    
+    function BotInitiated (error, data, response) {
+        if (error) {
+            console.log('Bot could not be initiated, : ' + error);
         }
-      }
         else {
-            // catch all log if the search could not be executed
-          console.log('Could not search tweets.');
+            console.log('Bot initiated : 669520341815836672');
         }
-    });
+    }
+    
+    BotRetweet();
 }
-retweet();
 
-setInterval(retweet, 600000);
+/* BotRetweet() : To retweet the matching recent tweet */
+function BotRetweet() {
+
+    var query = {
+        q: TWITTER_SEARCH_PHRASE,
+        result_type: "recent"
+    }
+
+    Bot.get('search/tweets', query, BotGotLatestTweet);
+
+    function BotGotLatestTweet (error, data, response) {
+        if (error) {
+            console.log('Bot could not find latest tweet, : ' + error);
+        }
+        else {
+            var id = {
+                id : data.statuses[0].id_str
+            }
+
+            Bot.post('statuses/retweet/:id', id, BotRetweeted);
+            
+            function BotRetweeted(error, response) {
+                if (error) {
+                    console.log('Bot could not retweet, : ' + error);
+                }
+                else {
+                    console.log('Bot retweeted : ' + id.id);
+                }
+            }
+        }
+    }
+}
+
+/* Set an interval of 30 minutes (in microsecondes) */
+setInterval(BotRetweet, 30*60*1000);
+
+/* Initiate the Bot */
+BotInit();

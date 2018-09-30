@@ -21,9 +21,5 @@ console.log('The bot is running...');
 
 //Post "Hello World"
 Bot.post('statuses/update', { status: 'hello world!' }, function(err, data, response) {
-  console.log(data)
-})
-//Post "Hello World"
-Bot.post('statuses/update', { status: 'hello orld!' }, function(err, data, response) {
-  console.log(data)
+  console.log("Done")
 })

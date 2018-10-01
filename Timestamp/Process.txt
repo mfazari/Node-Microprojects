@@ -1,0 +1,7 @@
+Timestamp - Learning Process
+
+
+- Using npm init to create package.json
+- Using npm install in combination with --save to make sure the added module/
+package is indeed found in package.json (since npm 5, not necessary anymore)
+-

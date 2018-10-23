@@ -37,5 +37,5 @@ Small service that uses the module "Twit" to post tweets through the console.
 #### Get started with
 
 ````
-npm install Twit
-
+npm install twit
+````
